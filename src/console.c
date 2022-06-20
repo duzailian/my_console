@@ -28,31 +28,44 @@ static void auto_completion(info_t *p_info) {
     return;
 }
 
+static inline void back_space(size_t n) {
+    for (int i = 0; i < n; i++)
+        putchar('\b');
+    return;
+}
+
 static void char_proc(const char recv, info_t *p_info) {
     switch(recv) {
         case BS_KEY: {
-            if (p_info->cur_column == 0)
+            if ((p_info->display_num == 0) || (p_info->cur_column == 0))
                 break;
+
             p_info->cur_column--;
             p_info->display_num--;
-            print_string("\b \b");
+            if (p_info->cur_column != p_info->display_num) {// 光标未在字符串尾
+                memmove(&p_info->history[p_info->cur_row][p_info->cur_column],
+                    &p_info->history[p_info->cur_row][p_info->cur_column + 1], p_info->display_num - p_info->cur_column);
+                p_info->history[p_info->cur_row][p_info->display_num] = '\0';
+                printf("\b%s ", &p_info->history[p_info->cur_row][p_info->cur_column]);
+                back_space(p_info->display_num - p_info->cur_column + 1);
+            } else {// 光标在字符串尾
+                printf("\b \b");
+                p_info->history[p_info->cur_row][p_info->cur_column] = '\0';
+            }
             break;
         }
         case LEFT_KEY: {
             if ((p_info->display_num == 0) || (p_info->cur_column == 0))
                 break;
-            printf("\b%c", p_info->history[p_info->cur_row][p_info->cur_column]);
+            printf("\b");
             p_info->cur_column--;
             break;
         }
         case RIGHT_KEY: {
-            if (p_info->cur_column == 0)
+            if (p_info->cur_column > (p_info->display_num - 1))
                 break;
-            if (p_info->cur_column >= (p_info->display_num - 1))
-                break;
-            print_tag();
             p_info->cur_column++;
-            printf("\b%c", p_info->history[p_info->cur_row][p_info->cur_column]);
+            printf("%c", p_info->history[p_info->cur_row][p_info->cur_column - 1]);
             break;
         }
         case UP_KEY: {
@@ -80,13 +93,13 @@ static void char_proc(const char recv, info_t *p_info) {
             break;
         }
         case C_E: {
-            for (; p_info->cur_column < p_info->display_num; p_info->cur_column++) 
-                printf("\b%c", p_info->history[p_info->cur_row][p_info->cur_column]);
+            for (; p_info->cur_column < p_info->display_num; p_info->cur_column++)
+                putchar( p_info->history[p_info->cur_row][p_info->cur_column]);
             break;
         }
         default: {
-            //putchar(recv);
-            printf("val:%x\r\n", recv);
+            putchar(recv);
+            //printf("val:%x\r\n", recv);
             p_info->history[p_info->cur_row][p_info->cur_column]=recv;
             p_info->display_num++;
             p_info->cur_column++;
@@ -168,9 +181,9 @@ int main (int arc, char **argv) {
 
     while (1) {
         read (STDIN_FILENO, &tmp, 1);
-    
+
         char_proc(tmp, p_info);
-        if (p_info->fsm) 
+        if (p_info->fsm)
             p_info->fsm(p_info);
     }
     return 0;

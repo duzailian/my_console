@@ -1,9 +1,9 @@
 #pragma once
 
-#define LEFT_KEY    (0x25)
-#define UP_KEY      (0x26)
-#define RIGHT_KEY   (0x27)
-#define DOWN_KEY    (0x28)
+#define LEFT_KEY    'H'// (0x25)
+#define UP_KEY      'K'// (0x26)
+#define RIGHT_KEY   'L'// (0x27)
+#define DOWN_KEY    'J'// (0x28)
 
 #define BS_KEY      (0x8)
 
