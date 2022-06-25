@@ -41,16 +41,6 @@ typedef struct __info_t{
     uint8_t display_num;// 屏幕上已显示的字符数
 }info_t;
 
-/*光标在行首时的动作函数声明*/
-#define DEFINE(key)     static void head_##key##_key_proc(uint8_t recv, struct __info_t *);
-    #include "internal/key_type.h"
-#undef DEFINE
-
-/*光标在行尾时的动作函数声明*/
-#define DEFINE(key)     static void tail_##key##_key_proc(uint8_t recv, struct __info_t *);
-    #include "internal/key_type.h"
-#undef DEFINE
-
 static void cmd_proc (info_t *p_info);
 
 #define put_space(n) do{ putnchar(' ', n); }while(0)
@@ -70,20 +60,6 @@ static inline void put_backspace(size_t n, bool need_space) {
 }
 
 static info_t info = {0};
-
-/*光标在行首时的动作定义*/
-#define DEFINE(key)    .proc[key##_key] = head_##key##_key_proc,
-static status_proc_t *status_head = &(status_proc_t) {
-    #include "internal/key_type.h"
-};
-#undef DEFINE
-
-/*光标在行尾时的动作定义*/
-#define DEFINE(key)    .proc[key##_key] = tail_##key##_key_proc,
-static status_proc_t *status_tail = &(status_proc_t) {
-    #include "internal/key_type.h"
-};
-#undef DEFINE
 
 #include "internal/key_proc.inc"
 
