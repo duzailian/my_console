@@ -66,6 +66,7 @@ static info_t info = {0};
 static void get_argv(char *string, int *p_argc, char **argv) {
     uint8_t index = 0;
 
+    /*TODO:为提高程序运行效率，可将strtok()函数替换为将空格替换为\0的函数*/
     argv[0] = strtok(string, " ");
     while (argv[index] && (index < ARGV_MAX)) {
         argv[index] = strtok(NULL, " ");
@@ -75,13 +76,14 @@ static void get_argv(char *string, int *p_argc, char **argv) {
 
 static void cmd_proc (info_t *p_info) {
     cmd_t *p_cmd;
-    char *string = &p_info->history[p_info->cur_row][0];
     int argc;
     char *argv[ARGV_MAX];
+    char buffer[STRING_MAX];
 
-    get_argv(string, &argc, &argv[0]);
+    strncpy(buffer, &p_info->history[p_info->cur_row][0], sizeof(buffer));
+    get_argv(buffer, &argc, &argv[0]);
     for (p_cmd = &cmds[0]; p_cmd < &cmds[sizeof_array(cmds)]; p_cmd++) {
-        if (strcmp(string, p_cmd->string) != 0)
+        if (strcmp(buffer, p_cmd->string) != 0)
             continue;
         p_cmd->proc(argc, argv);
         break;
